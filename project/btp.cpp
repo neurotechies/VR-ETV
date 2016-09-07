@@ -119,8 +119,47 @@ int windowPosY1;
 int windowHandle0;
 int windowHandle1;
 
+// information about computer screen and GLUT display window
+int screenW;
+int screenH;
+int windowW;
+int windowH;
+int windowPosX;
+int windowPosY;
+
 // root resource path
 string resourceRoot;
+
+// callback to handle mouse click
+void mouseClick(int button, int state, int x, int y);
+
+// callback to handle mouse motion when button is pressed
+void mouseMove(int x, int y);
+
+// some objects.
+cShapeSphere* sphere;
+
+// a small sphere which displays the position of a click hit in the world
+cShapeSphere* sphereSelect;
+
+// a small line to display the surface normal at the selection point
+cShapeLine* normalSelect;
+
+// a pointer to the selected object
+cGenericObject* selectedObject = NULL;
+
+// offset between the position of the mmouse click on the object and the object reference frame location.
+cVector3d selectedObjectOffset;
+
+// flag that says if theselected object is being moved by the mous
+bool flagMoveObject = false;
+
+// position of mouse click.
+cVector3d selectedPoint;
+
+// last mouse position
+// int mouseX;
+// int mouseY;
 
 
 //------------------------------------------------------------------------------
@@ -221,6 +260,8 @@ int main(int argc, char* argv[])
     windowHandle0 = glutCreateWindow(argv[0]);
     glutDisplayFunc(updateGraphics0);
     glutKeyboardFunc(keySelect);
+    glutMouseFunc(mouseClick);
+    glutMotionFunc(mouseMove);
     glutReshapeFunc(resizeWindow0);
     glutSetWindowTitle("CHAI3D");
     glutTimerFunc(50, graphicsTimer0, 0);
@@ -232,6 +273,8 @@ int main(int argc, char* argv[])
     windowHandle1 = glutCreateWindow(argv[0]);
     glutDisplayFunc(updateGraphics1);
     glutKeyboardFunc(keySelect);
+    glutMouseFunc(mouseClick);
+    glutMotionFunc(mouseMove);
     glutReshapeFunc(resizeWindow1);
     glutSetWindowTitle("CHAI3D");
     glutTimerFunc(50, graphicsTimer1, 0);
@@ -362,6 +405,7 @@ int main(int argc, char* argv[])
         // filter files with .3ds extension
 
         filename = string(dir->d_name) ;
+        cout <<  filename << endl;
 
         if(filename != "." && filename!= ".." && filename.substr(filename.length()-3,filename.length())== "3ds"){
           resource_3ds.push_back(filename);
@@ -515,6 +559,23 @@ int main(int argc, char* argv[])
     }
 
 
+
+    // create a small sphere to display a selection hit with the mouse
+    sphereSelect = new cShapeSphere(0.005);
+    world->addChild(sphereSelect);
+    sphereSelect->m_material->setRedCrimson();
+    sphereSelect->setShowEnabled(false);
+    sphereSelect->setGhostEnabled(true);
+
+    normalSelect = new cShapeLine();
+    sphereSelect->addChild(normalSelect);
+    normalSelect->m_colorPointA.setRedCrimson();
+    normalSelect->m_colorPointB.setRedCrimson();
+    normalSelect->setShowEnabled(false);
+    normalSelect->setGhostEnabled(true);
+
+
+
     //--------------------------------------------------------------------------
     // START SIMULATION
     //--------------------------------------------------------------------------
@@ -532,6 +593,133 @@ int main(int argc, char* argv[])
     // exit
     return (0);
 }
+
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+void mouseClick(int button, int state, int x, int y)
+{
+    // mouse button down
+    if (state == GLUT_DOWN)
+    {
+        cCollisionRecorder recorder;
+        cCollisionSettings settings;
+
+        flagMoveObject = false;
+
+        bool hit = camera->selectWorld(x, (windowH1 - y), windowW1, windowH1, recorder, settings);
+        if (hit)
+        {
+            sphereSelect->setShowEnabled(true);
+            normalSelect->setShowEnabled(true);
+            selectedPoint = recorder.m_nearestCollision.m_globalPos;
+            sphereSelect->setLocalPos(selectedPoint);
+            normalSelect->m_pointA.zero();
+            normalSelect->m_pointB = 0.1 * recorder.m_nearestCollision.m_globalNormal;
+            selectedObject = recorder.m_nearestCollision.m_object;
+            cout << selectedObject << endl;
+            cMesh* object = (cMesh *) selectedObject;
+            cout << object->getNumVertices() <<endl;
+            for (int i = 0 ; i < skull->getNumMeshes() ; i++){
+              // if(skull->m_meshes[i] == object){
+                int ver = skull->getMesh(i)->getNumVertices();
+                if (ver == object->getNumVertices()){
+                  cout << resource_3ds[i] << endl;
+                }
+                //  cout << (skull->getMesh(i))->getNumVertices() <<endl;
+              // }
+            }
+            selectedObjectOffset = recorder.m_nearestCollision.m_globalPos - selectedObject->getLocalPos();
+            flagMoveObject = true;
+        }
+    }
+}
+
+
+
+//------------------------------------------------------------------------------
+
+// void mouseClick(int button, int state, int x, int y)
+// {
+//     mouseX = x;
+//     mouseY = y;
+//
+//     if (state == GLUT_DOWN)
+//     {
+//         cCollisionRecorder recorder;
+//         cCollisionSettings settings;
+//
+//         bool hit = camera->selectWorld(x, (windowH1 - y), windowW1, windowH1, recorder, settings);
+//         if (hit)
+//         {
+//             // check if hit involves voxl object
+//             if (recorder.m_nearestCollision.m_object == skull)
+//             {
+//                 // get selected voxel
+//                 int voxelX = recorder.m_nearestCollision.m_voxelIndexX;
+//                 int voxelY = recorder.m_nearestCollision.m_voxelIndexY;
+//                 int voxelZ = recorder.m_nearestCollision.m_voxelIndexZ;
+//
+//                 // set color to black
+//                 cColorb color(0x00, 0x00, 0x00, 0x00);
+//
+//                 // set color to voxel
+//                 skull->m_texture->m_image->setVoxelColor(voxelX, voxelY, voxelZ, color);
+//
+//                 // update voxel data
+//                 skull->m_texture->markForUpdate();
+//             }
+//         }
+//     }
+// }
+
+
+
+//------------------------------------------------------------------------------
+
+void mouseMove(int x, int y)
+{
+    // here we move the selected object according to the position of the mouse.
+    if ((selectedObject != NULL) && (flagMoveObject))
+    {
+        // get the vector that goes from the camera to the selected point (mouse click)
+        cVector3d vCameraObject = selectedPoint - camera->getLocalPos();
+
+        // get the vector that point in the direction of the camera. ("where the camera is lookint at")
+        cVector3d vCameraLookAt = camera->getLookVector();
+
+        // compute the angle between both vectors
+        double angle = cAngle(vCameraObject, vCameraLookAt);
+
+        // compute the distance between the camera and the plane that intersects the object and
+        // which is parallel to the camera plane
+        double distanceToObjectPlane = vCameraObject.length() * cos(angle);
+
+        // convert the pixel in mouse space into a relative position in the world
+        double factor = (distanceToObjectPlane * tan(0.5 * camera->getFieldViewAngleRad())) / (0.5 * windowH1);
+        double posRelX = factor * (x - (0.5 * windowW1));
+        double posRelY = factor * ((windowH1 - y) - (0.5 * windowH1));
+
+        // compute the new position in world coordinates
+        cVector3d pos = camera->getLocalPos() +
+                        distanceToObjectPlane * camera->getLookVector() +
+                        posRelX * camera->getRightVector() +
+                        posRelY * camera->getUpVector();
+
+        // compute position of object by taking in account offset
+        cVector3d posObject = pos - selectedObjectOffset;
+
+        // apply new position to object
+        selectedObject->setLocalPos(posObject);
+
+        // place cursor at the position of the mouse click
+        sphereSelect->setLocalPos(pos);
+    }
+}
+
+
 
 //------------------------------------------------------------------------------
 
