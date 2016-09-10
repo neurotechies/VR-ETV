@@ -54,7 +54,11 @@ using namespace std;
 #include "GLUT/glut.h"
 #endif
 //------------------------------------------------------------------------------
-
+// file & directory reading
+#include <dirent.h>
+#include <stdio.h>
+#include <string>
+#include <iostream>
 //------------------------------------------------------------------------------
 // DECLARED VARIABLES
 //------------------------------------------------------------------------------
@@ -88,6 +92,7 @@ cToolCursor* tool;
 
 // a label to display the rate [Hz] at which the simulation is running
 cLabel* labelHapticRate;
+vector<string> resource_3ds;
 
 // indicates if the haptic simulation currently running
 bool simulationRunning = false;
@@ -344,23 +349,48 @@ int main(int argc, char* argv[])
     // add object to world
     world->addChild(skull);
 
-    // load an object file
-    bool fileload;
-    // fileload = cLoadMeshFromFile(skull , RESOURCE_PATH("../../btp/resources/skull/Skull.obj"));
-    fileload = skull->loadFromFile(RESOURCE_PATH("../../btp/resources/subcorticals/subcorticals.3ds"));
 
-    if (!fileload)
+    // reading directory for resources
+    DIR *d;
+    struct dirent *dir;
+    d = opendir("./resources/subcorticals");
+    string filename ;
+    if (d)
     {
-        #if defined(_MSVC)
-        // fileload = cLoadMeshFromFile(skull,"../../../btp/resources/skull/Skull.obj");
-        fileload = skull->loadFromFile("../../../btp/resources/subcorticals/subcorticals.3ds");
-        #endif
+      while ((dir = readdir(d)) != NULL)
+      {
+        // filter files with .3ds extension
+
+        filename = string(dir->d_name) ;
+
+        if(filename != "." && filename!= ".." && filename.substr(filename.length()-3,filename.length())== "3ds"){
+          resource_3ds.push_back(filename);
+          // cout <<  filename << endl;
+        }
+      }
+      closedir(d);
     }
-    if (!fileload)
-    {
-        cout << "Error - 3D Model failed to load correctly." << endl;
-        close();
-        return (-1);
+    // loading  object files (.3ds)
+    bool fileload;
+    for (int i = 0 ;i < resource_3ds.size();i++){
+
+      string file_location = "../../project/resources/subcorticals/" + resource_3ds[i];
+      // fileload = cLoadMeshFromFile(skull , RESOURCE_PATH("../../btp/resources/skull/Skull.obj"));
+      fileload = skull->loadFromFile(RESOURCE_PATH(file_location));
+      cout << file_location<< endl;
+      // if (!fileload)
+      // {
+      //     #if defined(_MSVC)
+      //     // fileload = cLoadMeshFromFile(skull,"../../../btp/resources/skull/Skull.obj");
+      //     fileload = skull->loadFromFile("../../../btp/resources/subcorticals/subcorticals.3ds");
+      //     #endif
+      // }
+      if (!fileload)
+      {
+          cout << "Error - 3D Model failed to load correctly." << endl;
+          close();
+          return (-1);
+      }
     }
 
     // disable culling so that faces are rendered on both sides
