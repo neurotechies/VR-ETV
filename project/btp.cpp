@@ -148,6 +148,9 @@ cShapeLine* normalSelect;
 // a pointer to the selected object
 cGenericObject* selectedObject = NULL;
 
+// selected object
+cMesh* mySelectedObject= NULL;
+
 // offset between the position of the mmouse click on the object and the object reference frame location.
 cVector3d selectedObjectOffset;
 
@@ -201,6 +204,10 @@ void updateGraphics1(void);
 // main haptics loop
 void updateHaptics(void);
 
+// add Texture to cMesh object
+void addTexture(cMesh * obj , string filepath);
+
+void removeTexture(cMesh * obj);
 
 //==============================================================================
 /*
@@ -599,6 +606,50 @@ int main(int argc, char* argv[])
 
 //------------------------------------------------------------------------------
 
+void addTexture (cMesh * obj , string filepath){
+  obj->m_texture = cTexture2d::create();
+  bool fileload = obj->m_texture->loadFromFile(RESOURCE_PATH(filepath));
+  // if (!fileload)
+  // {
+  //         #if defined(_MSVC)
+  //         fileload = object1->m_texture->loadFromFile("../../../bin/resources/images/whitefoam.jpg");
+  //         #endif
+  // }
+  if (!fileload)
+  {
+          cout << "Error - Texture image failed to load correctly." << endl;
+          close();
+          return;
+  }
+
+  // enable texture mapping
+  obj->setUseTexture(true);
+  obj->m_material->setWhite();
+
+  // create normal map from textur-e data
+  cNormalMapPtr normalMap1 = cNormalMap::create();
+  normalMap1->createMap(obj->m_texture);
+  obj->m_normalMap = normalMap1;
+  //
+  // // set haptic properties
+  // obj->m_material->setStiffness(0.1 * maxStiffness);
+  // obj->m_material->setStaticFriction(0.0);
+  // obj->m_material->setDynamicFriction(0.3);
+  // obj->m_material->setTextureLevel(1.5);
+  // obj->m_material->setHapticTriangleSides(true, false);
+
+
+}
+
+// ---- remove texture of cMesh object
+void removeTexture(){
+    for (int i = 0 ; i < skull->getNumMeshes(); i++){
+      skull->getMesh(i)->setUseTexture(false);
+    }
+}
+
+//------------------------------------------------------------------------------
+
 void mouseClick(int button, int state, int x, int y)
 {
     // mouse button down
@@ -612,6 +663,7 @@ void mouseClick(int button, int state, int x, int y)
         bool hit = camera->selectWorld(x, (windowH1 - y), windowW1, windowH1, recorder, settings);
         if (hit)
         {
+            removeTexture();
             sphereSelect->setShowEnabled(true);
             normalSelect->setShowEnabled(true);
             selectedPoint = recorder.m_nearestCollision.m_globalPos;
@@ -621,7 +673,9 @@ void mouseClick(int button, int state, int x, int y)
             selectedObject = recorder.m_nearestCollision.m_object;
             cout << selectedObject << endl;
             cMesh* object = (cMesh *) selectedObject;
+            // mySelectedObject = object;
             cout << object->getNumVertices() <<endl;
+            addTexture(object ,"../../project/resources/textures/sand.jpg");
             for (int i = 0 ; i < skull->getNumMeshes() ; i++){
               // if(skull->m_meshes[i] == object){
                 int ver = skull->getMesh(i)->getNumVertices();
@@ -633,6 +687,7 @@ void mouseClick(int button, int state, int x, int y)
             }
             selectedObjectOffset = recorder.m_nearestCollision.m_globalPos - selectedObject->getLocalPos();
             flagMoveObject = true;
+
         }
     }
 }
