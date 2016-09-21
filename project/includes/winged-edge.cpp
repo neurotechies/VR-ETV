@@ -3,7 +3,12 @@
 #include <iostream>
 //-----------------------------------------------------------------------------
 using namespace std;
+using namespace chai3d;
 
-int main (){
-  cout << "it works"  << endl;
-}
+void wingedfromObj(winged_edge_mesh * wmesh ,  const std::string& a_filename){
+
+};
+
+void clearAllWinged(winged_edge_mesh * wmesh){
+
+};
