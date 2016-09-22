@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
     world->addChild(camera);
 
     // position and orient the camera
-    camera->set(cVector3d(1.5, 2.0, 3.5),    // camera position (eye)
+    camera->set(cVector3d(1.5, 3.0, 3),    // camera position (eye)
                 cVector3d(0.0, 0.0, 0.0),    // lookat position (target)
                 cVector3d(0.0, 0.0, 1.0));   // direction of the (up) vector
 
@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
     tool->setRadius(toolRadius);
 
     // hide the device sphere. only show proxy.
-    tool->setShowContactPoints(false, false);
+    tool->setShowContactPoints(true, false);
 
     // create a white cursor
     tool->m_hapticPoint->m_sphereProxy->m_material->setWhite();
@@ -372,6 +372,8 @@ int main(int argc, char* argv[])
     // this mode avoids the force spike that occurs when the application starts when
     // the tool is located inside an object for instance.
     tool->setWaitForSmallForce(true);
+
+    tool->enableDynamicObjects(true);
 
     // start the haptic tool
     tool->start();
@@ -462,6 +464,12 @@ int main(int argc, char* argv[])
     // position and orient object in scene
     skull->setLocalPos(0.0, -0.5, 0.9);
     skull->rotateExtrinsicEulerAnglesDeg(90, 0, 0, C_EULER_ORDER_XYZ);
+
+    // set haptic properties
+    skull->m_material->setStiffness(0.5 * maxStiffness);
+
+    // build collision detection tree
+    skull->createAABBCollisionDetector(toolRadius);
 
     cMaterial mat;
     mat.setHapticTriangleSides(true, true);
