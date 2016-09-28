@@ -689,6 +689,7 @@ void mouseClick(int button, int state, int x, int y)
                 int ver = skull->getMesh(i)->getNumVertices();
                 if (ver == object->getNumVertices()){
                   cout << resource_3ds[i] << endl;
+                  labelHapticRate->setText(resource_3ds[i]);
                 }
                 //  cout << (skull->getMesh(i))->getNumVertices() <<endl;
               // }
@@ -861,7 +862,8 @@ void updateGraphics0(void)
     /////////////////////////////////////////////////////////////////////
 
     // update haptic rate data
-    labelHapticRate->setText(cStr(frequencyCounter.getFrequency(), 0) + " Hz");
+    //labelHapticRate->setText(cStr(frequencyCounter.getFrequency(), 0) + " Hz");
+
 
     // update position of label
     labelHapticRate->setLocalPos((int)(0.5 * (windowW0 - labelHapticRate->getWidth())), 15);
