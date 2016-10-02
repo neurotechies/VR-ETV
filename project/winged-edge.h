@@ -15,12 +15,13 @@ struct w_edge ;
 
 /// representing vertex in 3d meshes
 struct vertex {
-    float x,y,z;
-    w_edge *edge;
+    double x,y,z;
+    vector < w_edge* > edges;
+
 
   };
 struct face {
-    w_edge *edge;
+    vector < w_edge* > edge;
 };
 
 struct w_edge {
@@ -32,8 +33,8 @@ struct w_edge {
 // =-------------------------
 
 struct w_mesh{
-    w_edge *start ;
+    vector < vertex * > vertices;
+    vector < w_edge* > edges ;
 };
-
 void clearAllWinged(w_mesh * wmesh);
 bool wingedfromMesh(w_mesh * wmesh , cMultiMesh * multimesh) ;
