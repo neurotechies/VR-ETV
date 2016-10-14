@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
     world->addChild(camera);
 
     // position and orient the camera
-    camera->set(cVector3d(1.5, 3.0, 3),    // camera position (eye)
+    camera->set(cVector3d(10.0, 10.0, 10.0),    // camera position (eye)
                 cVector3d(0.0, 0.0, 0.0),    // lookat position (target)
                 cVector3d(0.0, 0.0, 1.0));   // direction of the (up) vector
 
@@ -416,7 +416,7 @@ int main(int argc, char* argv[])
         filename = string(dir->d_name) ;
         cout <<  filename << endl;
 
-        if(filename != "." && filename!= ".." && filename.substr(filename.length()-3,filename.length())== "3ds"){
+        if(filename != "." && filename!= ".." && filename.substr(filename.length()-3,filename.length())== "obj"){
           resource_3ds.push_back(filename);
           // cout <<  filename << endl;
         }
@@ -426,10 +426,14 @@ int main(int argc, char* argv[])
     // loading  object files (.3ds)
     bool fileload;
     for (int i = 0 ;i < resource_3ds.size();i++){
+      cMultiMesh* mesh1 = new cMultiMesh();
+
 
       string file_location = "../../project/resources/subcorticals/" + resource_3ds[i];
       // fileload = cLoadMeshFromFile(skull , RESOURCE_PATH("../../btp/resources/skull/Skull.obj"));
-      fileload = skull->loadFromFile(RESOURCE_PATH(file_location));
+      fileload = mesh1->loadFromFile(RESOURCE_PATH(file_location));
+      skull->addChild(mesh1);
+
       cout << file_location<< endl;
       // if (!fileload)
       // {
