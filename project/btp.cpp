@@ -43,7 +43,9 @@
 
 //------------------------------------------------------------------------------
 #include "chai3d.h"
+#include "winged-edge.h"
 // #include "files/CMeshLoader.h"
+
 //------------------------------------------------------------------------------
 using namespace chai3d;
 using namespace std;
@@ -414,7 +416,7 @@ int main(int argc, char* argv[])
         // filter files with .3ds extension
 
         filename = string(dir->d_name) ;
-        cout <<  filename << endl;
+        // cout <<  filename << endl;
 
         if(filename != "." && filename!= ".." && filename.substr(filename.length()-3,filename.length())== "obj"){
           resource_3ds.push_back(filename);
@@ -432,9 +434,11 @@ int main(int argc, char* argv[])
       string file_location = "../../project/resources/subcorticals/" + resource_3ds[i];
       // fileload = cLoadMeshFromFile(skull , RESOURCE_PATH("../../btp/resources/skull/Skull.obj"));
       fileload = mesh1->loadFromFile(RESOURCE_PATH(file_location));
-      skull->addChild(mesh1);
+      // skull->addChild(mesh1);
 
-      cout << file_location<< endl;
+      cMesh * newMesh = skull->newMesh() ;
+      mesh1->convertToSingleMesh(newMesh);
+      // cout << file_location<< endl;
       // if (!fileload)
       // {
       //     #if defined(_MSVC)
@@ -450,6 +454,15 @@ int main(int argc, char* argv[])
       }
     }
 
+    // verify loaded models
+
+    cout << skull->getNumMeshes()<< endl ;
+
+
+    // verify winged
+    w_mesh * wmesh = new w_mesh();
+    bool wload =  wingedFromMesh(wmesh,skull) ;
+    // cout << wload << endl;
     // disable culling so that faces are rendered on both sides
     skull->setUseCulling(true);
 

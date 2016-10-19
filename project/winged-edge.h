@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------
 
 using namespace chai3d;
-// using namespace std;
+using namespace std;
 
 //-----------------------------------------------------------------------------
 
@@ -15,16 +15,25 @@ struct w_edge ;
 
 /// representing vertex in 3d meshes
 struct vertex {
-    double x,y,z;
-    vector < w_edge* > edges;
+    // public :
+      int index ;
+      vector < w_edge* > edges;
 
+      // void setIndex( int index1 ){
+      //   cout << "ver1" << endl ;
+      //   index = index1 ;
+      //   cout << "ver2" << endl ;
+      //
+      // }
+};
 
-  };
 struct face {
+    int ind ;
     vector < w_edge* > edge;
 };
 
 struct w_edge {
+    int ind ;
     vertex *start , *end ;
     face  *left, *right ;
     w_edge *left_prev , *left_next ;
@@ -35,6 +44,8 @@ struct w_edge {
 struct w_mesh{
     vector < vertex * > vertices;
     vector < w_edge* > edges ;
+    vector < face* > faces ;
 };
+// void addVertex(w_mesh * mesh , vertex * v);
 void clearAllWinged(w_mesh * wmesh);
-bool wingedfromMesh(w_mesh * wmesh , cMultiMesh * multimesh) ;
+bool wingedFromMesh(w_mesh * wmesh , cMultiMesh * multimesh) ;
