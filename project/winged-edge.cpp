@@ -90,6 +90,43 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
             }
 
         }
+
+        // adding adjacent edges
+
+        for (int i = 0 ; i < wmesh->edges.size() ; i++){
+            vertex * v1 = wmesh->edges[i]->start ;
+            vertex * v2 = wmesh->edges[i]->end ;
+            int ct = 0 ;
+            for (int j = 0 ; j < v1->edges.size(); j++){
+                if(v1->edges[j] != wmesh->edges[i]){
+                  if(ct= 0 ){
+                    wmesh->edges[i]->left_prev = v1->edges[j] ;
+                    ct++;
+                  }
+                  else{
+                    wmesh->edges[i]->right_prev = v1->edges[j] ;
+                    break;
+                  }
+                }
+            }
+            ct = 0
+            for (int j = 0 ; j < v2->edges.size(); j++){
+                if(v2->edges[j] != wmesh->edges[i]){
+                  if(ct= 0 ){
+                    wmesh->edges[i]->left_next = v2->edges[j] ;
+                    ct++;
+                  }
+                  else{
+                    wmesh->edges[i]->right_next = v2->edges[j] ;
+                    break;
+                  }
+                }
+            }
+        }
+        //////////////////////////////////////////////
+
+
+
     return true ;
 };
 
