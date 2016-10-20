@@ -79,7 +79,7 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
                   e = new w_edge();
                   // getVertex(wmesh,v1,e->start );
                   e->start = wmesh->vertices[v1] ;
-                  e->end = wmesh->vertices.[v2] ;
+                  e->end = wmesh->vertices[v2] ;
 
                   wmesh->edges.push_back(e) ;
 
@@ -109,7 +109,7 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
                   }
                 }
             }
-            ct = 0
+            ct = 0;
             for (int j = 0 ; j < v2->edges.size(); j++){
                 if(v2->edges[j] != wmesh->edges[i]){
                   if(ct= 0 ){
