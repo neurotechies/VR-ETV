@@ -8,17 +8,28 @@ using namespace chai3d;
 void addVertex(w_mesh * mesh , vertex * v) {
   mesh->vertices.push_back(v);
 }
-bool wingedFromMesh(w_mesh * wmesh , cMultiMesh * multimesh) {
+void getVertex(w_mesh * mesh , int i , vertex *& v) {
+  v = mesh->vertices[i];
+}
+int getIndex(cMultiMesh * m_meshes , cMesh * mesh , int verIndex ){
+    unsigned int index = 0;
+    unsigned int i, numMeshes;
+    numMeshes = (unsigned int)(m_meshes->getNumMeshes());
+    for (i=0; i<numMeshes; i++)
+    {
+        cMesh* nextMesh = m_meshes->getMesh(i);
+        if (nextMesh == mesh )
+        {
+            index += verIndex ;
+        }
+        else{
+          index += nextMesh->getNumVertices() ;
+    }
+  }
+    return index ;
+}
+bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
     // cout << "start" << endl ;
-    int num_meshes = multimesh->getNumMeshes();
-    // tranversing all meshes inside the multimesh
-    // for (int i = 0 ; i < num_meshes ; i++){
-    //     // convering ith mesh object into winged object
-    //     cMesh * iMesh = multimesh->getMesh(i);
-    //     // getting all verices  , edges and triangles from iMesh
-    //     cVertexArrayPtr vertices = iMesh->m_vertices ;
-    //     cTriangleArrayPtr triangles = iMesh->m_triangles ;
-    //     std::vector<cEdge> edges = iMesh->m_edges;
 
         // get vertices array
         // cVertexArray * verticesArr = cVertexArrayPtr->get();
@@ -26,49 +37,59 @@ bool wingedFromMesh(w_mesh * wmesh , cMultiMesh * multimesh) {
 
         for (int j = 0 ; j < multimesh->getNumVertices(); j++ ){
               // cout << "add0" << endl ;
-              cVector3d gpos = multimesh->getVertexPos(j) ;
+              // cVector3d gpos = multimesh->getVertexPos(j) ;
               // cout << "add1" << endl ;
 
-              vertex *ver ;
-              // cout << "add2" << endl ;
-              cout << j << endl;
+              vertex * ver ;
+              ver = new vertex() ;
+              // cout << j << endl;
               ver->index = j  ;
               // cout << "add3" << end  l ;
-
-              // addVertex(wmesh,ver);
+              // mesh->vertices.push_back(ver);
+              addVertex(wmesh,ver);
         }
-        cout << "start1" << endl ;
-        cout << multimesh->getNumVertices() << endl;
-        cout << "start2" << endl ;
-        cout << wmesh->vertices.size() << endl ;
-
-        // get edges arrays
-        // for (int j = 0 ; j < edges.size(); j++ ){
-        //       int v1 = edges[j]->m_vertex0;
-        //       int v2 = edges[j]->m_vertex1;
-        //
-        //       w_edge e = new w_edge();
-        //
-        //       e->start = w_mesh->vertices[v1] ;
-        //       e->end = w_mesh->vertices[v2] ;
-        //
-        //       w_mesh->edges.push_back(&e) ;
-        //
-        //
-        //       w_mesh->vertices[v1]->edges.push_back(&e)
-        //       w_mesh->vertices[v2]->edges.push_back(&e)
-        // }
-
-        // get vertices array
-        // cTriangleArray * triangleArr = cVertexArrayPtr.get();
-        //
-        //
-        // for (int j = 0 ; j < triangleArr->getNumVertices(); j++ ){
-        //
-        // }
+        // get Triangle array
+        for (int j = 0 ; j < multimesh->getNumTriangles(); j++ ){
+            face * fc ;
+            fc = new face() ;
+            fc->index = j ;
+            wmesh->faces.push_back(fc) ;
+        }
 
 
-    // }
+        int num_meshes = multimesh->getNumMeshes();
+        // tranversing all meshes inside the multimesh
+        for (int i = 0 ; i < num_meshes ; i++){
+            // convering ith mesh object into winged object
+            cMesh * iMesh = multimesh->getMesh(i);
+            // getting all verices  , edges and triangles from iMesh
+            // cVertexArrayPtr vertices = iMesh->m_vertices ;
+            // cTriangleArrayPtr triangles = iMesh->m_triangles ;
+            std::vector<cEdge> edges = iMesh->m_edges;
+
+            // get edges arrays
+            for (int j = 0 ; j < edges.size(); j++ ){
+                  int vv1 = edges[j].m_vertex0;
+                  int vv2 = edges[j].m_vertex1;
+
+                  int v1 = getIndex(multimesh , iMesh , vv1);
+                  int v2 = getIndex(multimesh , iMesh , vv2);
+
+                  w_edge * e ;
+                  e = new w_edge();
+                  // getVertex(wmesh,v1,e->start );
+                  e->start = wmesh->vertices[v1] ;
+                  e->end = wmesh->vertices.[v2] ;
+
+                  wmesh->edges.push_back(e) ;
+
+                  wmesh->vertices[v1]->edges.push_back(e);
+                  wmesh->vertices[v2]->edges.push_back(e);
+
+
+            }
+
+        }
     return true ;
 };
 

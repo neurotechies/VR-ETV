@@ -28,12 +28,12 @@ struct vertex {
 };
 
 struct face {
-    int ind ;
+    int index ;
     vector < w_edge* > edge;
 };
 
 struct w_edge {
-    int ind ;
+    int index ;
     vertex *start , *end ;
     face  *left, *right ;
     w_edge *left_prev , *left_next ;
@@ -48,4 +48,4 @@ struct w_mesh{
 };
 // void addVertex(w_mesh * mesh , vertex * v);
 void clearAllWinged(w_mesh * wmesh);
-bool wingedFromMesh(w_mesh * wmesh , cMultiMesh * multimesh) ;
+bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) ;
