@@ -124,6 +124,8 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
             }
         }
         //////////////////////////////////////////////
+        // adding adjacent faces
+
 
 
 
