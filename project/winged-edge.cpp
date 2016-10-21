@@ -125,9 +125,34 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
         }
         //////////////////////////////////////////////
         // adding adjacent faces
+        for (int i = 0 ; i < wmesh->edges.size() ; i++){
+            cVector3d v1 = multimesh->getVertexPos(wmesh->edges[i]->start->index) ;
+            cVector3d v2 = multimesh->getVertexPos(wmesh->edges[i]->end->index) ;
+            bool first = false ;
+            for (int j = 0 ; j < multimesh->getNumTriangles() ; j++){
 
+                cMesh * iMesh;
+                unsigned int index ;
+                multimesh->getTriangle( j, iMesh, index) ;
+                cTriangleArray * triangles = ((std::shared_ptr< cTriangleArray >)(iMesh->m_triangles)).get() ;
+                cVertexArray * vertices = ((std::shared_ptr< cVertexArray >)(iMesh->m_vertices)).get() ;
+                cVector3d tv1 = vertices->getLocalPos(triangles-> getVertexIndex0()) ;
+                cVector3d tv2 = vertices->getLocalPos(triangles-> getVertexIndex1()) ;
+                cVector3d tv3 = vertices->getLocalPos(triangles-> getVertexIndex2()) ;
 
+                bool match = (v1 != tv1 && v1 != tv2 && v1 != tv3) || (v2 != tv1 && v2 != tv2 && v2 != tv3) ;
+                if(!match) {
+                    if(!first){
+                        wmesh->edges[i]->left = wmesh->faces[j] ;
+                    }
+                    else{
+                        wmesh->edges[i]->right = wmesh->faces[j] ;
+                        break ;
+                    }
+                }
 
+            }
+        }
 
     return true ;
 };
