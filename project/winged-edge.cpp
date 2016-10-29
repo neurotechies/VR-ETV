@@ -47,27 +47,38 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
               // cout << "add3" << end  l ;
               // mesh->vertices.push_back(ver);
               addVertex(wmesh,ver);
-        }
+        };
+        cout << "vertex done!" << endl ;
         // get Triangle array
         for (int j = 0 ; j < multimesh->getNumTriangles(); j++ ){
             face * fc ;
             fc = new face() ;
             fc->index = j ;
             wmesh->faces.push_back(fc) ;
-        }
+        };
+        cout << "triangles done!" << endl ;
 
 
         int num_meshes = multimesh->getNumMeshes();
         // tranversing all meshes inside the multimesh
+        cout << "edges ";
+        cout <<  num_meshes << endl ;
         for (int i = 0 ; i < num_meshes ; i++){
+           cout << "edge: " ;
+           cout << i << endl ;
+
             // convering ith mesh object into winged object
             cMesh * iMesh = multimesh->getMesh(i);
             // getting all verices  , edges and triangles from iMesh
             // cVertexArrayPtr vertices = iMesh->m_vertices ;
             // cTriangleArrayPtr triangles = iMesh->m_triangles ;
+            // cout << "start" << endl ;
+            iMesh->computeAllEdges(40.0) ;
             std::vector<cEdge> edges = iMesh->m_edges;
 
             // get edges arrays
+            // cout << "size" << endl ;
+            // cout << edges.size() << endl ;
             for (int j = 0 ; j < edges.size(); j++ ){
                   int vv1 = edges[j].m_vertex0;
                   int vv2 = edges[j].m_vertex1;
@@ -77,6 +88,7 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
 
                   w_edge * e ;
                   e = new w_edge();
+
                   // getVertex(wmesh,v1,e->start );
                   e->start = wmesh->vertices[v1] ;
                   e->end = wmesh->vertices[v2] ;
@@ -92,7 +104,7 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
         }
 
         // adding adjacent edges
-
+        //
         for (int i = 0 ; i < wmesh->edges.size() ; i++){
             vertex * v1 = wmesh->edges[i]->start ;
             vertex * v2 = wmesh->edges[i]->end ;
@@ -123,45 +135,46 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
                 }
             }
         }
+
+        cout << "adjacent edges done!" << endl ;
         //////////////////////////////////////////////
-        // adding adjacent faces
-        for (int i = 0 ; i < wmesh->edges.size() ; i++){
-            cVector3d v1 = multimesh->getVertexPos(wmesh->edges[i]->start->index) ;
-            cVector3d v2 = multimesh->getVertexPos(wmesh->edges[i]->end->index) ;
-            bool first = false ;
-            for (int j = 0 ; j < multimesh->getNumTriangles() ; j++){
-
-                cMesh * iMesh;
-                unsigned int index ;
-                multimesh->getTriangle( j, iMesh, index) ;
-                cTriangleArray * triangles = ((std::shared_ptr< cTriangleArray >)(iMesh->m_triangles)).get() ;
-                cVertexArray * vertices = ((std::shared_ptr< cVertexArray >)(iMesh->m_vertices)).get() ;
-                cVector3d tv1 = vertices->getLocalPos(triangles->getVertexIndex0(index)) ;
-                cVector3d tv2 = vertices->getLocalPos(triangles->getVertexIndex1(index)) ;
-                cVector3d tv3 = vertices->getLocalPos(triangles->getVertexIndex2(index)) ;
-
-                bool match = ((!v1.equals(tv1)) && (!v1.equals(tv2)) && (!v1.equals(tv3))) || ((!v2.equals(tv1)) && (!v2.equals(tv2)) && (!v2.equals(tv3))) ;
-                // bool match = v1.equals(tv1);
-
-                // note : check before adding edges ; 
-                if(!match) {
-                    if(!first){
-                        wmesh->edges[i]->left = wmesh->faces[j] ;
-                        wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
-                    }
-                    else{
-                        wmesh->edges[i]->right = wmesh->faces[j] ;
-                        wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
-                        break ;
-                    }
-                }
-
-            }
-        }
+        // // adding adjacent faces
+        // for (int i = 0 ; i < wmesh->edges.size() ; i++){
+        //     cVector3d v1 = multimesh->getVertexPos(wmesh->edges[i]->start->index) ;
+        //     cVector3d v2 = multimesh->getVertexPos(wmesh->edges[i]->end->index) ;
+        //     bool first = false ;
+        //     for (int j = 0 ; j < multimesh->getNumTriangles() ; j++){
+        //
+        //         cMesh * iMesh;
+        //         unsigned int index ;
+        //         multimesh->getTriangle( j, iMesh, index) ;
+        //         cTriangleArray * triangles = ((std::shared_ptr< cTriangleArray >)(iMesh->m_triangles)).get() ;
+        //         cVertexArray * vertices = ((std::shared_ptr< cVertexArray >)(iMesh->m_vertices)).get() ;
+        //         cVector3d tv1 = vertices->getLocalPos(triangles->getVertexIndex0(index)) ;
+        //         cVector3d tv2 = vertices->getLocalPos(triangles->getVertexIndex1(index)) ;
+        //         cVector3d tv3 = vertices->getLocalPos(triangles->getVertexIndex2(index)) ;
+        //
+        //         bool match = ((!v1.equals(tv1)) && (!v1.equals(tv2)) && (!v1.equals(tv3))) || ((!v2.equals(tv1)) && (!v2.equals(tv2)) && (!v2.equals(tv3))) ;
+        //         // bool match = v1.equals(tv1);
+        //
+        //         // note : check before adding edges ;
+        //         if(!match) {
+        //             if(!first){
+        //                 wmesh->edges[i]->left = wmesh->faces[j] ;
+        //                 wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
+        //             }
+        //             else{
+        //                 wmesh->edges[i]->right = wmesh->faces[j] ;
+        //                 wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
+        //                 break ;
+        //             }
+        //         }
+        //
+        //     }
+        // }
 
     return true ;
 };
-
 
 void clearAllWinged(w_mesh * wmesh){
 

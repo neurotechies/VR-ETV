@@ -457,12 +457,13 @@ int main(int argc, char* argv[])
     // verify loaded models
 
     cout << skull->getNumMeshes()<< endl ;
-
-
     // verify winged
     w_mesh * wmesh = new w_mesh();
     bool wload =  wingedFromMesh(wmesh,skull) ;
-    // cout << wload << endl;
+    if(wload) cout << "loaded " << endl;
+    cout << wmesh->edges.size() << endl;
+    
+
     // disable culling so that faces are rendered on both sides
     skull->setUseCulling(true);
 
@@ -621,6 +622,8 @@ int main(int argc, char* argv[])
 
     // start the main graphics rendering loop
     glutMainLoop();
+
+
 
     // exit
     return (0);
