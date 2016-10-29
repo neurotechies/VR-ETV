@@ -136,17 +136,22 @@ bool wingedFromMesh(w_mesh *& wmesh , cMultiMesh * multimesh) {
                 multimesh->getTriangle( j, iMesh, index) ;
                 cTriangleArray * triangles = ((std::shared_ptr< cTriangleArray >)(iMesh->m_triangles)).get() ;
                 cVertexArray * vertices = ((std::shared_ptr< cVertexArray >)(iMesh->m_vertices)).get() ;
-                cVector3d tv1 = vertices->getLocalPos(triangles-> getVertexIndex0()) ;
-                cVector3d tv2 = vertices->getLocalPos(triangles-> getVertexIndex1()) ;
-                cVector3d tv3 = vertices->getLocalPos(triangles-> getVertexIndex2()) ;
+                cVector3d tv1 = vertices->getLocalPos(triangles->getVertexIndex0(index)) ;
+                cVector3d tv2 = vertices->getLocalPos(triangles->getVertexIndex1(index)) ;
+                cVector3d tv3 = vertices->getLocalPos(triangles->getVertexIndex2(index)) ;
 
-                bool match = (v1 != tv1 && v1 != tv2 && v1 != tv3) || (v2 != tv1 && v2 != tv2 && v2 != tv3) ;
+                bool match = ((!v1.equals(tv1)) && (!v1.equals(tv2)) && (!v1.equals(tv3))) || ((!v2.equals(tv1)) && (!v2.equals(tv2)) && (!v2.equals(tv3))) ;
+                // bool match = v1.equals(tv1);
+
+                // note : check before adding edges ; 
                 if(!match) {
                     if(!first){
                         wmesh->edges[i]->left = wmesh->faces[j] ;
+                        wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
                     }
                     else{
                         wmesh->edges[i]->right = wmesh->faces[j] ;
+                        wmesh->faces[j]->edge.push_back(wmesh->edges[i]);
                         break ;
                     }
                 }
