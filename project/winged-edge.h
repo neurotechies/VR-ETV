@@ -29,6 +29,7 @@ struct vertex {
 
 struct face {
     int index ;
+    vector <vertex *> vertices; 
     vector < w_edge* > edge;
 };
 

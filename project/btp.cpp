@@ -454,15 +454,6 @@ int main(int argc, char* argv[])
       }
     }
 
-    // verify loaded models
-
-    cout << skull->getNumMeshes()<< endl ;
-    // verify winged
-    w_mesh * wmesh = new w_mesh();
-    bool wload =  wingedFromMesh(wmesh,skull) ;
-    if(wload) cout << "loaded " << endl;
-    cout << wmesh->edges.size() << endl;
-    
 
     // disable culling so that faces are rendered on both sides
     skull->setUseCulling(true);
@@ -607,6 +598,14 @@ int main(int argc, char* argv[])
     normalSelect->setShowEnabled(false);
     normalSelect->setGhostEnabled(true);
 
+    // verify loaded models
+
+    cout << skull->getNumMeshes()<< endl ;
+    // verify winged
+    w_mesh * wmesh = new w_mesh();
+    bool wload =  wingedFromMesh(wmesh,skull) ;
+    if(wload) cout << "loaded " << endl;
+    cout << wmesh->edges.size() << endl;
 
 
     //--------------------------------------------------------------------------
